@@ -103,20 +103,20 @@ class bank_view_test extends \advanced_testcase {
         $PAGE->set_context($this->ctx);
         // Hard coded.
         $pagevars = array(
-            'recurse' => true,
-            'cat' => $this->cat->id . ',' . $this->ctx->id,
-            'showall' => 0,
-            'showallprinted' => 0,
+                'recurse' => true,
+                'cat' => $this->cat->id . ',' . $this->ctx->id,
+                'showall' => 0,
+                'showallprinted' => 0,
         );
 
         $report = new \mod_studentquiz_report($this->cm->id);
         $questionbank = new studentquiz_bank_view(
-            new \question_edit_contexts(\context_module::instance($this->cm->id))
-            , new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
-            , $this->course
-            , $this->cm
-            , $this->studentquiz
-            , $pagevars, $report);
+                new \question_edit_contexts(\context_module::instance($this->cm->id))
+                , new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
+                , $this->course
+                , $this->cm
+                , $this->studentquiz
+                , $pagevars, $report);
         return $questionbank;
     }
 
@@ -133,7 +133,7 @@ class bank_view_test extends \advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id, $studentrole->id);
 
         $this->studentquiz = $this->getDataGenerator()->create_module('studentquiz',
-            array('course' => $this->course->id),  array('anonymrank' => true));
+                array('course' => $this->course->id),  array('anonymrank' => true));
         $this->cm = get_coursemodule_from_instance('studentquiz', $this->studentquiz->id);
 
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -229,8 +229,8 @@ class bank_view_test extends \advanced_testcase {
     protected function displayqb($questionbank, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0) {
         $cat = $this->cat->id . "," . $this->ctx->id;
         $questionbank->display('questions', $qpage, $qperpage,
-            $cat, $recurse, $showhidden,
-            $qbshowtext);
+                $cat, $recurse, $showhidden,
+                $qbshowtext);
     }
 
     /**

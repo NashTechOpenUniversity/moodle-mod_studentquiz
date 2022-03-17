@@ -391,7 +391,7 @@ class comment {
         $canviewdeleted = $container->can_view_deleted();
         $object = new \stdClass();
         $object->id = $comment->id;
-        $object->questionid = $comment->questionid;
+        $object->studentquizquestionid = $comment->studentquizquestionid;
         $object->parentid = $comment->parentid;
         $object->content = $comment->comment;
         $object->shortcontent = utils::nice_shorten_text(strip_tags($comment->comment, self::ALLOWABLE_TAGS), self::SHORTEN_LENGTH);
@@ -474,7 +474,7 @@ class comment {
 
             $object->commenthistorylink = (new moodle_url('/mod/studentquiz/commenthistory.php', [
                     'cmid' => $this->get_container()->get_cmid(),
-                    'questionid' => $this->get_container()->get_question()->id,
+                    'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id(),
                     'commentid' => $comment->id
             ]))->out();
         }
@@ -501,6 +501,7 @@ class comment {
         $data->timemodified = time();
         $data->usermodified = $this->get_user_id();
         $data->status = utils::COMMENT_HISTORY_DELETE;
+        $data->studentquizquestionid = $this->get_container()->get_studentquiz_question()->get_id();
         $res = $DB->update_record('studentquiz_comment', $data);
         // Writing log.
         $record = $this->data;
@@ -532,7 +533,7 @@ class comment {
         $questiondata = $this->get_container()->get_question();
         $params = [
                 'cmid' => $this->get_container()->get_cmid(),
-                'questionid' => $questiondata->id,
+                'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id(),
                 'commentid' => $commentid
         ];
         $url = new \moodle_url(self::ABUSE_PAGE, $params);

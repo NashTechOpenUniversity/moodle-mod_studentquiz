@@ -15,28 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Ajax requests to this script saves the ratings and comments.
+ * Single action: Pin/Unpin question in SQ
  *
  * Require POST params:
- * "save" can be "rate" or "comment" (save type),
- * "questionid" is necessary for every request,
- * "rate" is necessary if the save type is "rate"
- * "text" is necessary if the save type is "comment"
+ * "studentquizquestionid" is necessary for every request,
+ * "courseid" is necessary for every request,
+ * "sesskey" is necessary for every request
+ * "cmid" is necessary for every request,
+ * "pin" is necessary
  *
  * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
+ * @copyright  2022 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
 // Get parameters.
-$cmid = optional_param('cmid', 0, PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
-$save = required_param('save', PARAM_NOTAGS);
+$courseid = required_param('courseid', PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
+$returnurl = required_param('returnurl', PARAM_LOCALURL);
+$pin = required_param('pin', PARAM_INT);
 
 // Load course and course module requested.
 if ($cmid) {
@@ -53,22 +54,20 @@ if ($cmid) {
 // Authentication check.
 require_login($module->course, false, $module);
 require_sesskey();
-
-$data = new \stdClass();
-$data->userid = $USER->id;
-$data->studentquizquestionid = $studentquizquestionid;
-
-switch($save) {
-    case 'rate':
-        $data->rate = required_param('rate', PARAM_INT);
-
-        // Rating is only valid if the rate is in or between 1 and 5.
-        if ($data->rate < 1 || $data->rate > 5) {
-            throw new moodle_exception("invalidrate");
-        }
-
-        mod_studentquiz_save_rate($data);
-        break;
+$context = context_module::instance($module->id);
+try {
+    $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
+    $studentquizquestion = new \mod_studentquiz\local\studentquiz_question($studentquizquestionid,
+            null, $studentquiz, $module, $context);
+} catch (moodle_exception $e) {
+    throw new moodle_exception("invalidconfirmdata', 'error");
 }
+$questionid = $studentquizquestion->get_question()->id;
+question_require_capability_on($questionid, 'edit');
 
-header('Content-Type: text/html; charset=utf-8');
+$pinnotification = $pin ? 'pin' : 'unpin';
+$DB->set_field('studentquiz_question', 'pinned', $pin, ['id' => $studentquizquestionid]);
+mod_studentquiz_state_notify($studentquizquestion, $course, $module, $pinnotification);
+// Purge these questions from the cache.
+\question_bank::notify_question_edited($questionid);
+redirect($returnurl);

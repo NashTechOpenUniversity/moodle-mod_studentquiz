@@ -30,7 +30,7 @@ require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 
 $cmid = required_param('cmid', PARAM_INT);
-$questionid = required_param('questionid', PARAM_INT);
+$studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 $commentid = required_param('commentid', PARAM_INT);
 $referer = optional_param('referer', null, PARAM_URL);
 
@@ -40,14 +40,14 @@ $pageparams = [
         'commentid' => $commentid,
 ];
 
-list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($pageparams['questionid'], $pageparams['cmid']);
+$studentquizquestion = new \mod_studentquiz\local\studentquiz_question($studentquizquestionid);
 
 // Authentication check.
 require_login($cm->course, false, $cm);
 
 global $OUTPUT, $PAGE, $COURSE, $USER;
 
-$commentarea = new container($studentquiz, $question, $cm, $context);
+$commentarea = new container($studentquizquestion);
 $comment = $commentarea->query_comment_by_id($pageparams['commentid']);
 
 // Prepare preview comment report url.
