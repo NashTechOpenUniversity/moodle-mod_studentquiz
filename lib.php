@@ -524,7 +524,7 @@ function mod_studentquiz_output_fragment_commenteditform($params) {
 
     $formdata = ['text' => $comment->get_comment_data()->comment];
     $mform = new \mod_studentquiz\commentarea\form\comment_form([
-            'questionid' => $params['questionid'],
+            'studentquizquestionid' => $params['studentquizquestionid'],
             'cmid' => $params['cmid'],
             'commentid' => $params['commentid'],
             'forcecommenting' => $params['forcecommenting'],

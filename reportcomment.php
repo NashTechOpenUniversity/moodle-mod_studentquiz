@@ -36,16 +36,20 @@ $referer = optional_param('referer', null, PARAM_URL);
 
 $pageparams = [
         'cmid' => $cmid,
-        'questionid' => $questionid,
+        'studentquizquestionid' => $studentquizquestionid,
         'commentid' => $commentid,
 ];
 
 $studentquizquestion = new \mod_studentquiz\local\studentquiz_question($studentquizquestionid);
+$cm = $studentquizquestion->get_cm();
 
 // Authentication check.
 require_login($cm->course, false, $cm);
 
 global $OUTPUT, $PAGE, $COURSE, $USER;
+
+$context = $studentquizquestion->get_context();
+$studentquiz = $studentquizquestion->get_studentquiz();
 
 $commentarea = new container($studentquizquestion);
 $comment = $commentarea->query_comment_by_id($pageparams['commentid']);
@@ -53,7 +57,7 @@ $comment = $commentarea->query_comment_by_id($pageparams['commentid']);
 // Prepare preview comment report url.
 $previewurl = (new moodle_url('/mod/studentquiz/preview.php', [
         'cmid' => $cm->id,
-        'questionid' => $question->id,
+        'studentquizquestionid' => $studentquizquestionid,
         'highlight' => $comment->get_id()
 ]))->out(false);
 
@@ -80,7 +84,7 @@ if ($pagename) {
 $action = (new moodle_url($PAGE->url, ['referer' => $referer]))->out(false);
 
 $customdata = [
-        'questionid' => $question->id,
+        'studentquizquestionid' => $studentquizquestionid,
         'cmid' => $cm->id,
         'commentid' => $comment->get_id(),
         'email' => $USER->email,

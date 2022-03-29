@@ -88,8 +88,6 @@ class mod_studentquiz_external extends external_api {
         $cm = get_coursemodule_from_id('studentquiz', $cmid);
         $studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
         $studentquizquestion = new studentquiz_question($studentquizquestionid, null, $studentquiz);
-        $studentquizquestion->change_state_visibility($type, $value);
-        $studentquizquestion->save_action($state);
 
         if (!$canmanage && $state == studentquiz_helper::STATE_DELETE) {
             if ($studentquizquestion->get_state() == studentquiz_helper::STATE_APPROVED) {
@@ -99,6 +97,9 @@ class mod_studentquiz_external extends external_api {
                 return $result;
             }
         }
+
+        $studentquizquestion->change_state_visibility($type, $value);
+        $studentquizquestion->save_action($state);
 
         // Additionally always unhide the question when it got approved.
         if ($state == studentquiz_helper::STATE_APPROVED && $studentquizquestion->is_hidden()) {

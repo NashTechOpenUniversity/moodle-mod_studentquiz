@@ -169,7 +169,7 @@ function mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_stat
 function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquizid, $context) {
     global $DB;
 
-    $sql = "SELECT innerq.questionid, innerq.userid, innerq.attempts, innerq.correctattempts, sqq.id as studentquizquestionid
+    $sql = "SELECT innerq.questionid, innerq.userid, innerq.attempts, innerq.correctattempts, sqq.id as studentquizquestionid,
                    CASE WHEN qas1.state = :rightstate2 THEN 1 ELSE 0 END AS lastanswercorrect
 
               FROM (
@@ -197,16 +197,10 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
                       AND qas_last.userid = innerq.userid
                       AND qas_last.state IN (:rightstate1, :partialstate1, :wrongstate1)
                    )
-              JOIN {question} q ON q.id = innerq.questionid
-              JOIN {question_versions} qv ON AND qv.version = (
-                                      SELECT MAX(version)
-                                        FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready
-                                  )
+              JOIN {question_versions} qv ON innerq.questionid = qv.questionid
               JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-              JOIN {question_references} qr ON qbe.id = qr.questionbankentryid AND qr.version = qv.version
-              JOIN {studentquiz_question} sqq ON sqq.studentquizid = qr.itemid
-              -- Only enrolled users.
+              JOIN {question_references} qr ON qbe.id = qr.questionbankentryid
+              JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
               ";
     $records = $DB->get_recordset_sql($sql, array(
             'rightstate2' => (string) question_state::$gradedright, 'rightstate3' => (string) question_state::$gradedright,
@@ -214,8 +208,7 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
             'rightstate' => (string) question_state::$gradedright, 'partialstate' => (string) question_state::$gradedpartial,
             'wrongstate' => (string) question_state::$gradedwrong, 'rightstate1' => (string) question_state::$gradedright,
             'partialstate1' => (string) question_state::$gradedpartial, 'wrongstate1' => (string) question_state::$gradedwrong,
-            'ready' => \core_question\local\bank\question_version_status::QUESTION_STATUS_READY));
-
+            ));
     $studentquizprogresses = array();
 
     foreach ($records as $r) {
@@ -324,7 +317,6 @@ function mod_studentquiz_prepare_notify_data($studentquizquestion, $recepient, $
  * @return bool True if sucessfully sent, false otherwise.
  */
 function mod_studentquiz_state_notify($studentquizquestion, $course, $module, $type) {
-    global $DB;
     if ($type == 'state') {
         $state = $studentquizquestion->get_state();
         $states = [
@@ -706,21 +698,6 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
         }
     }
     return $ids;
-}
-
-/**
- * Returns comment records
- * @param int $questionid
- */
-function mod_studentquiz_get_comments_with_creators($questionid) {
-    global $DB;
-
-    $sql = "SELECT co.*
-              FROM {studentquiz_comment} co
-              WHERE co.questionid = :questionid
-            ORDER BY co.created ASC";
-
-    return $DB->get_records_sql($sql, array( 'questionid' => $questionid));
 }
 
 /**
@@ -1200,15 +1177,18 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
                 'state' => studentquiz_helper::STATE_NEW,
                 'groupid' => $groupid
         ];
-        $ishonorpublishnewquestion = $honorpublish && isset($studentquiz->publishnewquestion) && !$studentquiz->publishnewquestion;
-        if ($ishonorpublishnewquestion) {
-            $params['hidden'] = 1;
-        } else if ($hidden) {
-            $params['hidden'] = 1;
+        if ($honorpublish) {
+            if (isset($studentquiz->publishnewquestion) && !$studentquiz->publishnewquestion) {
+                $params['hidden'] = 1;
+            }
+        } else {
+            if ($hidden) {
+                $params['hidden'] = 1;
+            }
         }
         $record = $DB->insert_record('studentquiz_question', (object) $params);
         utils::question_save_action($record, null, studentquiz_helper::STATE_NEW);
-        if ($ishonorpublishnewquestion) {
+        if ($honorpublish && isset($studentquiz->publishnewquestion) && $studentquiz->publishnewquestion) {
             utils::question_save_action($record, get_admin()->id, studentquiz_helper::STATE_SHOW);
         }
         // Load question to create a question references.
@@ -1220,7 +1200,7 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
                 'component' => STUDENTQUIZ_COMPONENT_QR,
                 'questionarea' => STUDENTQUIZ_QUESTIONAREA_QR,
                 'questionbankentryid' => $question->questionbankentryid,
-                'version' => $question->version
+                'version' => null
         ];
         $DB->insert_record('question_references', (object) $referenceparams);
     }
@@ -1385,23 +1365,20 @@ function mod_studentquiz_compare_questions_data($studentquiz, $honorpublish = tr
               JOIN {context} con ON con.instanceid = sq.coursemodule
               JOIN {question_categories} qc ON qc.contextid = con.id
               JOIN {question_bank_entries} qbe ON qc.id = qbe.questioncategoryid
-              JOIN {question_references} qr ON qbe.id = qr.questionbankentryid
-              JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
-                                      SELECT MAX(version)
-                                        FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready
-                                  )
+              JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
               -- Only enrolled users.
               JOIN {question} q ON q.id = qv.questionid
              WHERE q.parent = 0
                    AND sq.coursemodule = :coursemodule
                    AND qc.id = :categoryid
-                   AND q.id NOT IN (SELECT questionid FROM {studentquiz_question} WHERE state != 0)";
+                   AND qbe.id NOT IN (SELECT qr.questionbankentryid
+                                            FROM {studentquiz_question} sqq2
+                                            JOIN {question_references} qr ON qr.itemid = sqq2.id
+                                           WHERE state != 0)";
 
     $params = [
             'coursemodule' => $studentquiz->coursemodule,
             'categoryid' => $studentquiz->categoryid,
-            'ready' => \core_question\local\bank\question_version_status::QUESTION_STATUS_READY
     ];
 
     $missingquestions = $DB->get_records_sql($sql, $params);

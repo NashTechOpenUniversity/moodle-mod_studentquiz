@@ -84,7 +84,7 @@ class studentquiz_question {
      */
     public function get_studentquiz() {
         if (!isset($this->studentquiz)) {
-            $this->studentquiz = mod_studentquiz_load_studentquiz($this->data->cmid, $this->get_context());
+            $this->studentquiz = mod_studentquiz_load_studentquiz($this->data->cmid, $this->get_context()->id);
         }
 
         return $this->studentquiz;
@@ -140,7 +140,7 @@ class studentquiz_question {
      * @return bool Question's visibility hide/show.
      */
     public function is_hidden(): bool {
-        return  ($this->data->state == utils::HIDDEN);
+        return  ($this->data->hidden == utils::HIDDEN);
     }
 
     /**

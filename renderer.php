@@ -1593,7 +1593,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         global $DB, $USER;
 
         $question = $studentquizquestion->get_question();
-        if (!utils::allow_self_comment_and_rating_in_preview_mode($question, $this->page->cm->id)) {
+        if (!utils::allow_self_comment_and_rating_in_preview_mode($studentquizquestion, $this->page->cm->id)) {
             return '';
         }
 
@@ -2199,7 +2199,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
         $numbertoshow = $commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT;
         $canviewdeleted = $commentarea->can_view_deleted();
         $context = $studentquizquestion->get_context();
-        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($studentquizquestion->get_question(),
+        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($studentquizquestion,
                 $cmid, $commenttype, $studentquizquestion->get_studentquiz()->privatecommenting);
         if ($highlight != 0) {
             $numbertoshow = 0;

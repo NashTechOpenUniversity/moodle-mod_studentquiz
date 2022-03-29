@@ -66,7 +66,7 @@ if (!$container->can_view_username() && !$USER->id == $comment->userid) {
 }
 
 $actionurl = new moodle_url('/mod/studentquiz/commenthistory.php',
-        ['cmid' => $cmid, 'questionid' => $questionid, 'commentid' => $commentid]);
+        ['cmid' => $cmid, 'studentquizquestionid' => $studentquizquestionid, 'commentid' => $commentid]);
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'comment_history');
 $title = get_string('commenthistory', 'mod_studentquiz');

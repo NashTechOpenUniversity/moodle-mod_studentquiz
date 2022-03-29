@@ -120,7 +120,7 @@ class edit_comment_api extends external_api {
 
         $mform = new validate_comment_form('', [
                 'params' => [
-                        'questionid' => $params['questionid'],
+                        'studentquizquestionid' => $params['studentquizquestionid'],
                         'cmid' => $params['cmid'],
                         'commentid' => $params['commentid'],
                         'editmode' => true,

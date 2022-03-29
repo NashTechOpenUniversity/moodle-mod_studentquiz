@@ -197,20 +197,18 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
             // which need to interact with each other, so forcing method as get here.
             $output .= str_replace('method="post"', 'method="get"', $this->renderer->render_filter_form($this->filterform));
         }
-
+        echo $output;
         if ($this->countsql > 0) {
-            $questionslist = $this->display_question_list($this->baseurl, $cat, null, $page, $perpage,
+            $this->display_question_list($this->baseurl, $cat, null, $page, $perpage,
                     $this->contexts->having_cap('moodle/question:add')
             );
-            $output .= $this->renderer->render_question_form($questionslist);
         } else {
             list($message, $questionsubmissionallow) = mod_studentquiz_check_availability($this->studentquiz->opensubmissionfrom,
                     $this->studentquiz->closesubmissionfrom, 'submission');
             if ($questionsubmissionallow) {
-                $output .= $this->renderer->render_no_questions_notification($this->isfilteractive);
+                echo $this->renderer->render_no_questions_notification($this->isfilteractive);
             }
         }
-        echo $output;
     }
 
     /**
@@ -562,7 +560,15 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
      * but the moodle filter form can only process POST, so we need to copy them there.
      */
     private function modify_base_url() {
-        $this->baseurl->params($_GET);
+        $paramsget = $_GET;
+
+        // Url parameters values can not be arrays, so we get the processed data of form to get the timestamp instead of array.
+        if ($data = $this->filterform->get_data()) {
+            $paramsget['timecreated_sdt'] = $data->timecreated_sdt;
+            $paramsget['timecreated_edt'] = $data->timecreated_edt;
+        }
+
+        $this->baseurl->params($paramsget);
     }
 
     /**
@@ -579,12 +585,12 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
             redirect($pageurl);
         }
 
-        $this->modify_base_url();
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
             $pageurl->out(),
             array('cmid' => $this->cm->id)
         );
+        $this->modify_base_url();
     }
 
     /**

@@ -328,21 +328,21 @@ style5 = html';
     /**
      * Check permision can self comment.
      *
-     * @param \question_definition $question Current Question stdClass
+     * @param studentquiz_question $studentquizquestion Current studentquiz question stdClass
      * @param int $cmid Current Cmid
      * @param int $type Comment type.
      * @param bool $privatecommenting Does this studentquiz enable private commenting?
      * @return boolean
      */
-    public static function allow_self_comment_and_rating_in_preview_mode(\question_definition $question, $cmid,
+    public static function allow_self_comment_and_rating_in_preview_mode(studentquiz_question $studentquizquestion, $cmid,
              $type = self::COMMENT_TYPE_PUBLIC, $privatecommenting = false) {
         global $USER, $PAGE;
-
+        $question = $studentquizquestion->get_question();
         $context = \context_module::instance($cmid);
         if ($PAGE->pagetype == 'mod-studentquiz-preview' && !has_capability('mod/studentquiz:canselfratecomment', $context)) {
             if ($type == self::COMMENT_TYPE_PUBLIC || !$privatecommenting ||
                     $USER->id != $question->createdby ||
-                    self::get_question_state($question) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED) {
+                    self::get_question_state($studentquizquestion) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED) {
                 return false;
             }
         }
@@ -567,13 +567,13 @@ style5 = html';
     /**
      * Get current state of question.
      *
-     * @param \stdClass $question Question.
+     * @param studentquiz_question $studentquizquestion studentquizquestion instance.
      * @return int Question's state.
      */
-    public static function get_question_state($question) {
+    public static function get_question_state($studentquizquestion) {
         global $DB;
 
-        return $DB->get_field('studentquiz_question', 'state', ['questionid' => $question->id]);
+        return $DB->get_field('studentquiz_question', 'state', ['id' => $studentquizquestion->id]);
     }
 
     /**
@@ -673,15 +673,17 @@ style5 = html';
             $context = \context_module::instance($studentquiz->coursemodule);
             $studentquiz = mod_studentquiz_load_studentquiz($studentquiz->coursemodule, $context->id);
 
-            $sql = "SELECT sqq.questionid, sqq.state, q.createdby, q.timecreated
+            $sql = "SELECT sqq.id as studentquizquestionid, sqq.state, q.createdby, q.timecreated
                       FROM {studentquiz} sq
-                      JOIN {context} con ON con.instanceid = sq.coursemodule
-                      JOIN {question_categories} qc ON qc.contextid = con.id
-                      JOIN {question} q ON q.category = qc.id
-                      JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                      JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
+                      JOIN {question_references} qr ON qr.itemid = sqq.id
+                      JOIN {question_categories} qc ON qc.contextid = qr.usingcontextid
+                      JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
+                      JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid
+                      JOIN {question} q ON qv.questionid = q.id
                      WHERE sq.coursemodule = :coursemodule
                            AND qc.id = :categoryid
-                           AND NOT EXISTS (SELECT 1 FROM {studentquiz_state_history} WHERE questionid = q.id)";
+                           AND NOT EXISTS (SELECT 1 FROM {studentquiz_state_history} WHERE studentquizquestionid = sqq.id)";
 
             $params = [
                 'coursemodule' => $studentquiz->coursemodule,
@@ -692,11 +694,11 @@ style5 = html';
             if ($sqquestions) {
                 foreach ($sqquestions as $sqquestion) {
                     // Create action new question by onwer.
-                    self::question_save_action($sqquestion->questionid, $sqquestion->createdby,
+                    self::question_save_action($sqquestion->studentquizquestionid, $sqquestion->createdby,
                         studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
 
                     if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
-                        self::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
+                        self::question_save_action($sqquestion->studentquizquestionid, get_admin()->id, $sqquestion->state, null);
                     }
                 }
             }
