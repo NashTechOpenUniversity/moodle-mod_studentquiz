@@ -208,6 +208,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (!empty($data->questionid)) {
             $newquestionid = $this->get_mappingid('question', $data->questionid);
             $question = question_bank::load_question($newquestionid);
+
             $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
             $data->studentquizquestionid = $sq->get_id();
         } else {
@@ -231,6 +232,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (!empty($data->questionid)) {
             $newquestionid = $this->get_mappingid('question', $data->questionid);
             $question = question_bank::load_question($newquestionid);
+
             $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
             $data->studentquizquestionid = $sq->get_id();
         } else {
@@ -381,6 +383,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (!empty($data->questionid)) {
             $newquestionid = $this->get_mappingid('question', $data->questionid);
             $question = question_bank::load_question($newquestionid);
+
             $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
             $data->studentquizquestionid = $sq->get_id();
         } else {

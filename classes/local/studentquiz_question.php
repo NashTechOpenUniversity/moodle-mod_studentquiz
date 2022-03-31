@@ -159,8 +159,9 @@ class studentquiz_question {
         global $DB;
         $sql = 'SELECT sqq.id
                   FROM {studentquiz_question} sqq
-             LEFT JOIN {question_references} qr ON qr.itemid = sqq.id AND qr.component = \'' . STUDENTQUIZ_COMPONENT_QR . '\'
-                        AND qr.questionarea = \'' . STUDENTQUIZ_QUESTIONAREA_QR . '\'
+             LEFT JOIN {question_references} qr ON qr.itemid = sqq.id
+                       AND qr.component = \'' . STUDENTQUIZ_COMPONENT_QR . '\'
+                       AND qr.questionarea = \'' . STUDENTQUIZ_QUESTIONAREA_QR . '\'
              LEFT JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
              LEFT JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                           SELECT MAX(version)
@@ -189,8 +190,9 @@ class studentquiz_question {
                             q.createdby
                   FROM {studentquiz_question} sqq
              LEFT JOIN {studentquiz} sq ON sq.id = sqq.studentquizid
-             LEFT JOIN {question_references} qr ON qr.itemid = sqq.id AND qr.component = \'' . STUDENTQUIZ_COMPONENT_QR . '\'
-                            AND qr.questionarea = \'' . STUDENTQUIZ_QUESTIONAREA_QR . '\'
+             LEFT JOIN {question_references} qr ON qr.itemid = sqq.id
+                       AND qr.component = \'' . STUDENTQUIZ_COMPONENT_QR . '\'
+                       AND qr.questionarea = \'' . STUDENTQUIZ_QUESTIONAREA_QR . '\'
              LEFT JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
              LEFT JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                           SELECT MAX(version)

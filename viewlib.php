@@ -143,7 +143,8 @@ class mod_studentquiz_view {
             // Ensure we have a studentquiz_question record.
             // Since we don't can modify the core, we need to get the studentquizquestion.
             $question = \question_bank::load_question($lastchanged);
-            $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question, $this->studentquiz, $cm);
+            $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question,
+                    $this->studentquiz, $cm);
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
             mod_studentquiz_state_notify($studentquizquestion, $this->course, $this->cm, 'changed');
             redirect(new moodle_url('/mod/studentquiz/view.php', array('id' => $this->get_cm_id())));

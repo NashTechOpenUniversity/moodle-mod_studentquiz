@@ -43,6 +43,24 @@ const STUDENTQUIZ_COMPONENT_QR = 'mod_studentquiz';
 /** @var string default question area in question reference */
 const STUDENTQUIZ_QUESTIONAREA_QR = 'studentquiz_question';
 
+/** @var string default column for student quiz view */
+const STUDENTQUIZ_DEFAULT_COLUMN = 'checkbox_column,question_type_column,'
+        . 'mod_studentquiz\\bank\\state_column,'
+        . 'mod_studentquiz\\bank\\state_pin_column,'
+        . 'mod_studentquiz\\bank\\question_name_column,'
+        . 'mod_studentquiz\\bank\\question_text_row,'
+        . 'mod_studentquiz\\bank\\sq_edit_action_column,'
+        . 'mod_studentquiz\\bank\\preview_column,'
+        . 'mod_studentquiz\\bank\\sq_delete_action_column,'
+        . 'mod_studentquiz\\bank\\sq_hidden_action_column,'
+        . 'mod_studentquiz\\bank\\sq_pin_action_column,'
+        . 'mod_studentquiz\\bank\\sq_edit_menu_column,'
+        . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
+        . 'mod_studentquiz\\bank\\tag_column,'
+        . 'mod_studentquiz\\bank\\attempts_column,'
+        . 'mod_studentquiz\\bank\\difficulty_level_column,'
+        . 'mod_studentquiz\\bank\\rate_column,'
+        . 'mod_studentquiz\\bank\\comment_column';
 
 /**
  * Load studentquiz from coursemodule id
@@ -200,6 +218,8 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
               JOIN {question_versions} qv ON innerq.questionid = qv.questionid
               JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
               JOIN {question_references} qr ON qbe.id = qr.questionbankentryid
+                   AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                   AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
               JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
               ";
     $records = $DB->get_recordset_sql($sql, array(
@@ -938,6 +958,8 @@ function mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid, $excluderole
                       -- Get this StudentQuiz question.
                       JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
                       JOIN {question_references} qr ON qr.itemid = sqq.id
+                           AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                           AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -967,6 +989,8 @@ function mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid, $excluderole
                       FROM {studentquiz} sq
                       JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
                       JOIN {question_references} qr ON qr.itemid = sqq.id
+                           AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                           AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -999,6 +1023,8 @@ function mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid, $excluderole
                                FROM {studentquiz} sq
                                JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
                                JOIN {question_references} qr ON qr.itemid = sqq.id
+                                    AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                                    AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                                JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                                JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -1031,6 +1057,8 @@ function mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid, $excluderole
                       JOIN {studentquiz_question} sqq ON sp.studentquizquestionid = sqq.id
                       JOIN {studentquiz} sq ON sq.id = sqq.studentquizid
                       JOIN {question_references} qr ON qr.itemid = sqq.id
+                           AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                           AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -1057,6 +1085,8 @@ function mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid, $excluderole
                       JOIN {studentquiz_question} sqq ON sp.studentquizquestionid = sqq.id
                       JOIN {studentquiz} sq ON sq.id = sqq.studentquizid
                       JOIN {question_references} qr ON qr.itemid = sqq.id
+                           AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                           AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -1157,18 +1187,19 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
               -- Get this StudentQuiz question.
               JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
               JOIN {question_references} qr ON qr.itemid = sqq.id
+                   AND qr.component = \'' . STUDENTQUIZ_COMPONENT_QR . '\'
+                   AND qr.questionarea = \'' . STUDENTQUIZ_QUESTIONAREA_QR . '\'
               JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
               JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready
+                                       WHERE questionbankentryid = qbe.id
                                   )
               -- Only enrolled users.
               JOIN {question} q ON q.id = qv.questionid
              WHERE q.id = :questionid
     ';
-    if (!$DB->count_records_sql($sql, ['questionid' => $id,
-            'ready' => \core_question\local\bank\question_version_status::QUESTION_STATUS_READY])) {
+    if (!$DB->count_records_sql($sql, ['questionid' => $id])) {
         $studentquiz = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
         $cm = get_coursemodule_from_id('studentquiz', $cmid);
         $groupid = groups_get_activity_group($cm, true);
@@ -1220,6 +1251,8 @@ function mod_studentquiz_count_questions($cmid) {
               -- Get this StudentQuiz question.
               JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
               JOIN {question_references} qr ON qr.itemid = sqq.id
+                   AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                   AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
               JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
               JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -1253,6 +1286,8 @@ function mod_studentquiz_question_stats($cmid, $groupid) {
               -- Get this StudentQuiz question.
               JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
               JOIN {question_references} qr ON qr.itemid = sqq.id
+                   AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                   AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
               JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
               JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -1267,6 +1302,8 @@ function mod_studentquiz_question_stats($cmid, $groupid) {
                        JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
                        JOIN {question_references} qr ON qr.itemid = sqq.id
                        JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
+                            AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                            AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                        JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
@@ -1374,6 +1411,8 @@ function mod_studentquiz_compare_questions_data($studentquiz, $honorpublish = tr
                    AND qbe.id NOT IN (SELECT qr.questionbankentryid
                                             FROM {studentquiz_question} sqq2
                                             JOIN {question_references} qr ON qr.itemid = sqq2.id
+                                                 AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                                                 AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                                            WHERE state != 0)";
 
     $params = [

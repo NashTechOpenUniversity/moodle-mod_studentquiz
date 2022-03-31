@@ -458,7 +458,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $publiccomment = $this->render_from_template('mod_studentquiz/questionbank_comment_badge', $publiccontext);
 
         $privatecomment = '';
-
         if (utils::can_view_private_comment($this->page->cm->id, $question, $privatecommenting)) {
             $privatecontext = [
                 'tooltiptext' => get_string('commentcolumnexplainprivate', 'studentquiz'),
@@ -838,23 +837,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      */
     public function init_question_table_wanted_columns() {
         global $CFG;
-        $CFG->questionbankcolumns = 'checkbox_column,question_type_column,'
-                . 'mod_studentquiz\\bank\\state_column,'
-                . 'mod_studentquiz\\bank\\state_pin_column,'
-                . 'mod_studentquiz\\bank\\question_name_column,'
-                . 'mod_studentquiz\\bank\\question_text_row,'
-                . 'mod_studentquiz\\bank\\sq_edit_action_column,'
-                . 'mod_studentquiz\\bank\\preview_column,'
-                . 'mod_studentquiz\\bank\\sq_delete_action_column,'
-                . 'mod_studentquiz\\bank\\sq_hidden_action_column,'
-                . 'mod_studentquiz\\bank\\sq_pin_action_column,'
-                . 'mod_studentquiz\\bank\\sq_edit_menu_column,'
-                . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
-                . 'mod_studentquiz\\bank\\tag_column,'
-                . 'mod_studentquiz\\bank\\attempts_column,'
-                . 'mod_studentquiz\\bank\\difficulty_level_column,'
-                . 'mod_studentquiz\\bank\\rate_column,'
-                . 'mod_studentquiz\\bank\\comment_column';
+        $CFG->questionbankcolumns = STUDENTQUIZ_DEFAULT_COLUMN;
     }
 
     /**

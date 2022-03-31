@@ -16,6 +16,8 @@
 
 namespace mod_studentquiz;
 
+use mod_studentquiz\local\studentquiz_question;
+
 /**
  * Data generator test
  *
@@ -27,6 +29,7 @@ class generator_test extends \advanced_testcase {
 
     /**
      * Test create comment
+     * @covers \mod_studentquiz\commentarea\container::create_comment
      * @throws \coding_exception
      */
     public function test_create_comment() {
@@ -36,14 +39,27 @@ class generator_test extends \advanced_testcase {
         $studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
 
-        $cat = $questiongenerator->create_question_category();
-        $question = $questiongenerator->create_question('description', null, array('category' => $cat->id));
+        $course = $this->getDataGenerator()->create_course();
+
+        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+                'course' => $course->id,
+                'anonymrank' => true,
+                'forcecommenting' => 1,
+                'publishnewquestion' => 1
+        ));
+        $context = \context_module::instance($activity->cmid);
+
+        $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
+
+        $question = $questiongenerator->create_question('description', null, array('category' => $studentquiz->categoryid));
+        $question = \question_bank::load_question($question->id);
+        $sqq = studentquiz_question::get_studentquiz_question_from_question($question);
 
         $count = $DB->count_records('studentquiz_comment');
         $user = $this->getDataGenerator()->create_user();
 
         $commentrecord = new \stdClass();
-        $commentrecord->questionid = $question->id;
+        $commentrecord->studentquizquestionid = $sqq->id;
         $commentrecord->userid = $user->id;
 
         $studentquizgenerator->create_comment($commentrecord);
@@ -52,6 +68,7 @@ class generator_test extends \advanced_testcase {
 
     /**
      * Test create rate
+     * coversNothing
      * @throws \coding_exception
      */
     public function test_create_rate() {
@@ -60,17 +77,28 @@ class generator_test extends \advanced_testcase {
         $this->resetAfterTest();
         $studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $course = $this->getDataGenerator()->create_course();
 
-        $cat = $questiongenerator->create_question_category();
-        $question = $questiongenerator->create_question('description', null, array('category' => $cat->id));
+        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+                'course' => $course->id,
+                'anonymrank' => true,
+                'forcecommenting' => 1,
+                'publishnewquestion' => 1
+        ));
+        $context = \context_module::instance($activity->cmid);
 
+        $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
+
+        $question = $questiongenerator->create_question('description', null, array('category' => $studentquiz->categoryid));
+        $question = \question_bank::load_question($question->id);
+        $sqq = studentquiz_question::get_studentquiz_question_from_question($question);
         $count = $DB->count_records('studentquiz_rate');
 
         $user = $this->getDataGenerator()->create_user();
 
         $raterecord = new \stdClass();
         $raterecord->rate = 5;
-        $raterecord->questionid = $question->id;
+        $raterecord->studentquizquestionid = $sqq->id;
         $raterecord->userid = $user->id;
 
         $rec = $studentquizgenerator->create_comment($raterecord);

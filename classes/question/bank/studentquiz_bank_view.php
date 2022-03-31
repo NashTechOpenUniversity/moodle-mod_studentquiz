@@ -395,7 +395,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
         $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page,
             $perpage, true);
 
-        $output .= $this->display_question_list_rows($page);
+        $output .= $this->display_question_list_rows();
 
         $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page,
             $perpage, false);
@@ -697,7 +697,9 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
      */
     protected function get_question_bank_plugins(): array {
         global $CFG;
-        $corequestionbankcolumns = explode(',', $CFG->questionbankcolumns);
+        $corequestionbankcolumnsstring = isset($CFG->questionbankcolumns) ? $CFG->questionbankcolumns : STUDENTQUIZ_DEFAULT_COLUMN;
+        $corequestionbankcolumns = explode(',', $corequestionbankcolumnsstring);
+
         foreach ($corequestionbankcolumns as $fullname) {
             $shortname = $fullname;
             if (class_exists('mod_quiz\\question\\bank\\' . $fullname)) {

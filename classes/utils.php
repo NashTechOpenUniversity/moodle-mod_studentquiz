@@ -677,6 +677,8 @@ style5 = html';
                       FROM {studentquiz} sq
                       JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
                       JOIN {question_references} qr ON qr.itemid = sqq.id
+                           AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                           AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                       JOIN {question_categories} qc ON qc.contextid = qr.usingcontextid
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid
@@ -768,6 +770,8 @@ style5 = html';
         $sql = "SELECT q.id, sqq.state
               FROM {studentquiz_question} sqq
               JOIN {question_references} qr ON qr.itemid = sqq.id
+                   AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                   AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
               JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
               JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)

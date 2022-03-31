@@ -113,6 +113,8 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
                           JOIN {studentquiz_question} question ON question.studentquizid = sq.id
                           JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
                           JOIN {question_references} qr ON qr.itemid = sqq.id
+                               AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                               AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
                           JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                           JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
