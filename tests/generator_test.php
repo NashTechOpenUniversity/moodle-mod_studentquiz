@@ -68,7 +68,7 @@ class generator_test extends \advanced_testcase {
 
     /**
      * Test create rate
-     * coversNothing
+     * @coversNothing
      * @throws \coding_exception
      */
     public function test_create_rate() {
