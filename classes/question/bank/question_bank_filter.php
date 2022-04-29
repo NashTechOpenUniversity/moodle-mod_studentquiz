@@ -121,7 +121,6 @@ class studentquiz_user_filter_text extends user_filter_text {
      * Adds controls specific to this filter in the form.
      *
      * @param object $mform a MoodleForm object to setup
-     * @throws coding_exception
      */
     public function setupForm(&$mform) { // @codingStandardsIgnoreLine
         parent::setupForm($mform);
@@ -419,7 +418,7 @@ class user_filter_number extends studentquiz_user_filter_text {
 
         $params = array();
 
-        if ($operator != 5 and $value === '') {
+        if ($operator != 5 && $value === '') {
             return '';
         }
 
@@ -494,7 +493,7 @@ class user_filter_percent extends user_filter_number {
      */
     public function get_sql_filter($data) {
         $val = round($data['value'], 0);
-        if ($val > 100 or $val < 0) {
+        if ($val > 100 || $val < 0) {
             return '';
         }
         if ($val > 1) {
