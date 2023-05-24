@@ -35,7 +35,9 @@ if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
     $cmid = required_param('id', PARAM_INT);
     // Some internal moodle functions (e.g. question_edit_setup()) require the cmid to be found in $_xxx['cmid'],
     // but moodle allows to view a mod page with parameter id in place of cmid.
-    $_GET['cmid'] = $cmid;
+    $url = new moodle_url('/mod/studentquiz/view.php', ['cmid' => $cmid, 'id' => $cmid]);
+    $PAGE->set_url($url);
+    redirect($url);
 }
 
 // TODO: make course-, context- and login-check in a better starting class (not magically hidden in "report").
@@ -56,14 +58,15 @@ if (!$studentquiz->aggregated) {
 // Load view.
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
 $baseurl = $view->get_questionbank()->base_url();
-
 // Redirect if we have received valid data.
 // Usually we should use submitted_data(), but since we have two forms merged and exchanging their values
 // using GET params, we can't use that.
-if (!empty($_GET)) {
+parse_str($baseurl->get_query_string(false), $requestdata);
+
+if (!empty($requestdata)) {
     if (optional_param('startquiz', null, PARAM_BOOL)) {
         require_sesskey();
-        if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(fix_utf8($_GET))) {
+        if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(fix_utf8($requestdata))) {
             if ($attempt = mod_studentquiz_generate_attempt($ids, $studentquiz, $USER->id)) {
                 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
                 $baseurl->remove_params('startquiz');
@@ -94,7 +97,7 @@ $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
 if ((optional_param('approveselected', false, PARAM_BOOL) || optional_param('deleteselected', false, PARAM_BOOL)) &&
         !optional_param('confirm', '', PARAM_ALPHANUM) ||
         optional_param('move', false, PARAM_BOOL)) {
-    if (!mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST)) {
+    if (!mod_studentquiz_helper_get_ids_by_raw_submit(mod_studentquiz_collect_questionids_in_params())) {
         $baseurl->remove_params('deleteselected', 'approveselected', 'move');
         redirect($baseurl, get_string('noquestionsselectedtodoaction', 'studentquiz'),
             null, \core\output\notification::NOTIFY_WARNING);

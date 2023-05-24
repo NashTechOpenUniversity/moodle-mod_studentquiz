@@ -125,7 +125,11 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
     /** @var mod_studentquiz_report  */
     protected $report;
 
-    /**
+
+    /** @var params  */
+    protected $params;
+
+    /**1
      * Constructor assuming we already have the necessary data loaded.
      *
      * @param \core_question\local\bank\question_edit_contexts $contexts
@@ -544,6 +548,9 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
       * but the moodle filter form can only process POST, so we need to copy them there.
       */
     private function set_filter_post_data() {
+        $id = required_param('id', PARAM_INT);
+        $cmid = required_param('cmid', 0, PARAM_INT);
+//        $this->params = ['cmid' => $cmid, 'id' => $id];
         $_POST = $_GET;
     }
 

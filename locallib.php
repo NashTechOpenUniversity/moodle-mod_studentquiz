@@ -961,3 +961,15 @@ function mod_studentquiz_init_single_action_page($module, $studentquizquestionid
     question_require_capability_on($questionid, 'edit');
     return $studentquizquestion;
 }
+
+function mod_studentquiz_collect_questionids_in_params() {
+    $paramdata = [];
+
+    foreach ($_REQUEST as $key => $request) {
+        if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+            $paramdata[$key] = required_param($key, PARAM_INT);
+        }
+    }
+
+    return $paramdata;
+}

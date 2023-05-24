@@ -67,7 +67,8 @@ if ($cmid) {
 
 require_login($module->course, false, $module);
 
-$rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
+$rawsquestionparams = mod_studentquiz_collect_questionids_in_params();
+$rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($rawsquestionparams);
 // If user has already confirmed the action.
 if ($approveselected && ($confirm = optional_param('confirm', '', PARAM_ALPHANUM))
         && confirm_sesskey()) {
@@ -110,17 +111,17 @@ echo $OUTPUT->header();
 
 if ($approveselected) {
     // Make a list of all the questions that are selected.
-    $rawquestions = $_REQUEST; // This code is called by both POST forms and GET links, so cannot use data_submitted.
+    $rawsquestionparams = mod_studentquiz_collect_questionids_in_params(); // This code is called by both POST forms and GET links, so cannot use data_submitted.
     $questionlist = '';  // Comma separated list of ids of questions to be deleted.
     $questionnames = ''; // String with names of questions separated by <br/> with an asterix in front of those that are in use.
     $inuse = false;      // Set to true if at least one of the questions is in use.
-    $questionids = mod_studentquiz_helper_get_ids_by_raw_submit($rawquestions);
+    $questionids = mod_studentquiz_helper_get_ids_by_raw_submit($rawsquestionparams);
     $states = utils::get_states($questionids);
     $statedesc = studentquiz_helper::get_state_descriptions();
     $questionnames = utils::get_question_names($questionids);
     $questions = [];
 
-    foreach ($rawquestions as $key => $value) {    // Parse input for question ids.
+    foreach ($rawsquestionparams as $key => $value) {    // Parse input for question ids.
         if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
             $key = $matches[1];
             $questionlist .= $key.',';

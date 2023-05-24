@@ -126,7 +126,7 @@ class mod_studentquiz_view {
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
         $params = $_GET;
         // Get edit question link setup.
-        list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
+        [$thispageurl, $contexts, $cmid, $cm, $module, $pagevars]
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
         $pagevars['qperpage'] = optional_param('qperpage', \mod_studentquiz\utils::DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
         $pagevars['showall'] = optional_param('showall', false, PARAM_BOOL);
