@@ -18,7 +18,7 @@
  * This view renders a single question during the executing of a StudentQuiz
  *
  * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
+ * @copyright  2023 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use mod_studentquiz\utils;
